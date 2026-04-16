@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VanguardBot | Command Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #080b0e;
+            --panel-color: rgba(27, 42, 53, 0.6);
+            --panel-border: rgba(79, 160, 255, 0.15);
+            --accent-color: #4fa0ff;
+            --text-main: #f0f6fc;
+            --text-dim: #8b949e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Yan Menü (Sidebar) */
+        .sidebar {
+            width: 280px;
+            background: var(--panel-color);
+            backdrop-filter: blur(15px);
+            border-right: 1px solid var(--panel-border);
+            display: flex;
+            flex-direction: column;
+            padding: 30px 20px;
+            height: 100vh;
+        }
+
+        .logo {
+            font-size: 1.4rem;
+            font-weight: 800;
+            letter-spacing: 3px;
+            color: var(--text-main);
+            margin-bottom: 40px;
+            text-align: center;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--panel-border);
+            padding-bottom: 20px;
+        }
+
+        .logo span {
+            color: var(--accent-color);
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .nav-links li {
+            padding: 14px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-dim);
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border: 1px solid transparent;
+        }
+
+        .nav-links li i {
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .nav-links li:hover, .nav-links li.active {
+            background: rgba(79, 160, 255, 0.05);
+            color: var(--accent-color);
+            border: 1px solid var(--panel-border);
+        }
+
+        /* Ana İçerik Alanı */
+        .main-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            padding: 40px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--panel-border);
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+
+        /* Kullanıcı Kartı */
+        .user-panel {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 8px 15px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border: 1px solid var(--panel-border);
+        }
+
+        .user-panel img {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+        }
+
+        .btn-login {
+            background: var(--accent-color);
+            color: #0b0e11;
+            padding: 10px 25px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-login:hover {
+            box-shadow: 0 0 15px rgba(79, 160, 255, 0.3);
+        }
+
+        /* Kategori İçerikleri (Tab Sistemi) */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* İstatistik Kartları */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--panel-color);
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid var(--panel-border);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .stat-card h3 {
+            font-size: 2rem;
+            color: var(--text-main);
+        }
+
+        .stat-card p {
+            color: var(--text-dim);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        /* Tablolar ve Paneller */
+        .content-box {
+            background: var(--panel-color);
+            border-radius: 8px;
+            padding: 25px;
+            border: 1px solid var(--panel-border);
+            margin-bottom: 20px;
+        }
+
+        .content-box h2 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            color: var(--text-dim);
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--panel-border);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        td {
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+            color: var(--text-main);
+            font-size: 0.9rem;
+        }
+
+        .badge {
+            background: rgba(79, 160, 255, 0.1);
+            color: var(--accent-color);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(79, 160, 255, 0.2);
+        }
+
+        .logout {
+            margin-top: auto;
+            color: #f85149 !important;
+        }
+        .logout:hover {
+            background: rgba(248, 81, 73, 0.1) !important;
+            border-color: rgba(248, 81, 73, 0.3) !important;
+            color: #f85149 !important;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="logo">Vanguard<span>Core</span></div>
+        <ul class="nav-links">
+            <li class="active" onclick="switchTab('genel-bakis', this)"><i class="fa-solid fa-server"></i> Genel Bakış</li>
+            <li onclick="switchTab('sunucu-ayarlari', this)"><i class="fa-solid fa-sliders"></i> Sunucu Ayarları</li>
+            <li onclick="switchTab('moderasyon', this)"><i class="fa-solid fa-shield-halved"></i> Moderasyon</li>
+            <li onclick="switchTab('bilet-sistemi', this)"><i class="fa-solid fa-ticket"></i> Bilet Sistemi</li>
+            <li onclick="switchTab('ekonomi', this)"><i class="fa-solid fa-coins"></i> Ekonomi</li>
+            
+            {% if user %}
+            <li class="logout" onclick="window.location.href='/logout'"><i class="fa-solid fa-power-off"></i> Bağlantıyı Kes</li>
+            {% endif %}
+        </ul>
+    </div>
+
+    <div class="main-wrapper">
+        <div class="header">
+            <h1>Sistem Kontrol Paneli</h1>
+            
+            {% if user %}
+            <div class="user-panel">
+                <img src="{{ user.avatar }}" alt="User">
+                <div>
+                    <div style="font-weight: 600; font-size: 0.9rem;">{{ user.username }}</div>
+                    <div style="font-size: 0.7rem; color: var(--accent-color);">Yetkilendirildi</div>
+                </div>
+            </div>
+            {% else %}
+            <a href="/login" class="btn-login"><i class="fa-brands fa-discord"></i> Discord İle Bağlan</a>
+            {% endif %}
+        </div>
+
+        <div id="genel-bakis" class="tab-content active">
+            <div class="stats-container">
+                <div class="stat-card">
+                    <h3>{{ stats.server_count }}</h3>
+                    <p><i class="fa-solid fa-network-wired"></i> Aktif Bağlantı (Sunucu)</p>
+                </div>
+                <div class="stat-card">
+                    <h3>{{ stats.member_count }}</h3>
+                    <p><i class="fa-solid fa-users"></i> İzlenen Kullanıcı</p>
+                </div>
+                <div class="stat-card">
+                    <h3>54</h3>
+                    <p><i class="fa-solid fa-terminal"></i> Aktif Modül</p>
+                </div>
+            </div>
+
+            <div class="content-box">
+                <h2><i class="fa-solid fa-list-check"></i> Sistem Modülleri ve Komutlar</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Komut İstemi</th>
+                            <th>İşlev Açıklaması</th>
+                            <th>Erişim Yetkisi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>/toplurolver</td>
+                            <td>Sunucudaki tüm üyelere belirtilen rolü tanımlar.</td>
+                            <td><span class="badge">Sistem Yöneticisi</span></td>
+                        </tr>
+                        <tr>
+                            <td>/ticket-kur</td>
+                            <td>Kullanıcı destek (bilet) altyapısını aktif eder.</td>
+                            <td><span class="badge">Yönetici</span></td>
+                        </tr>
+                        <tr>
+                            <td>/ban</td>
+                            <td>Belirtilen kullanıcıyı sunucudan uzaklaştırır.</td>
+                            <td><span class="badge">Moderatör</span></td>
+                        </tr>
+                        <tr>
+                            <td>/calis</td>
+                            <td>Kullanıcının sanal bakiye kazanmasını sağlar.</td>
+                            <td><span class="badge">Kullanıcı</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="sunucu-ayarlari" class="tab-content">
+            <div class="content-box">
+                <h2><i class="fa-solid fa-sliders"></i> Temel Yapılandırma</h2>
+                <p style="color: var(--text-dim); margin-bottom: 20px;">VanguardBot'un bu sunucudaki temel çalışma prensiplerini ayarlayın.</p>
+                <p style="padding: 15px; background: rgba(0,0,0,0.2); border-radius: 6px; font-size: 0.9rem; border: 1px dashed var(--panel-border);">Bu modül Discord üzerinden yetkilendirme bekliyor.</p>
+            </div>
+        </div>
+
+        <div id="moderasyon" class="tab-content">
+            <div class="content-box">
+                <h2><i class="fa-solid fa-shield-halved"></i> Güvenlik Protokolleri</h2>
+                <p style="color: var(--text-dim); margin-bottom: 20px;">Otomatik küfür engeli, link koruması ve spam filtrelerini yönetin.</p>
+                <div style="display: flex; gap: 15px;">
+                    <div style="padding: 15px; background: rgba(79, 160, 255, 0.1); border: 1px solid rgba(79, 160, 255, 0.3); border-radius: 6px; flex: 1;">
+                        <h4 style="color: var(--accent-color); margin-bottom: 5px;">Küfür Filtresi</h4>
+                        <p style="font-size: 0.8rem; color: var(--text-dim);">Durum: Aktif</p>
+                    </div>
+                    <div style="padding: 15px; background: rgba(0,0,0,0.2); border: 1px dashed var(--panel-border); border-radius: 6px; flex: 1;">
+                        <h4 style="color: var(--text-main); margin-bottom: 5px;">Reklam Filtresi</h4>
+                        <p style="font-size: 0.8rem; color: var(--text-dim);">Durum: Pasif</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="bilet-sistemi" class="tab-content">
+            <div class="content-box">
+                <h2><i class="fa-solid fa-ticket"></i> Destek Altyapısı</h2>
+                <p style="color: var(--text-dim);">Açık olan destek taleplerini veya bilet ayarlarını buradan yapılandırın.</p>
+            </div>
+        </div>
+
+        <div id="ekonomi" class="tab-content">
+            <div class="content-box">
+                <h2><i class="fa-solid fa-coins"></i> Finans ve Ekonomi</h2>
+                <p style="color: var(--text-dim);">Sunucu içi para birimi ayarları, mağaza ürünleri ve günlük ödül limitleri.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function switchTab(tabId, clickedElement) {
+            // 1. Tüm içerikleri gizle
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // 2. Tıklanan içeriği göster
+            document.getElementById(tabId).classList.add('active');
+            
+            // 3. Menüdeki mavi "aktif" işaretini değiştir
+            document.querySelectorAll('.nav-links li').forEach(li => {
+                li.classList.remove('active');
+            });
+            clickedElement.classList.add('active');
+        }
+    </script>
+</body>
+</html>
